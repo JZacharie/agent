@@ -14,6 +14,7 @@ require (
 	github.com/morkid/paginate v1.1.7
 	github.com/otiai10/copy v1.14.0
 	github.com/spf13/viper v1.12.0
+	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 )
 

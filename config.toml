@@ -6,3 +6,13 @@ file_blacklist = [".potato",".example",".gitkeep",".gitignore"]
 model_render_color = "#167DF0"
 model_background_color =  "#FFFFFF"
 #thingiverse_token = "your_thingiverse_token"
+
+# Database configuration
+database_type = "postgres" # "postgres" or "sqlite"
+postgres_host = "localhost"
+postgres_port = 5432
+postgres_user = "stlib"
+postgres_password = "stlib"
+postgres_database = "stlib"
+postgres_sslmode = "disable"
+

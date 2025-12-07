@@ -1,21 +1,51 @@
 ---
 version: "3.6"
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: stlib-postgres
+    environment:
+      POSTGRES_USER: stlib
+      POSTGRES_PASSWORD: stlib
+      POSTGRES_DB: stlib
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U stlib" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   stlib:
     image: ghcr.io/eduardooliveira/stlib:main
     container_name: stlib
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./library:/library
       - ./config.toml:/app/config.toml
     ports:
       - 8000:8000
     environment:
-      - "THINGIVERSE_TOKEN": "" # needed for the thingiverse download feature
-      #- "PORT": 8000
-      #- "LIBRARY_PATH": "./library"
-      #- "MAX_RENDER_WORKERS": 5
-      #- "MODEL_RENDER_COLOR": "#ffffff"
-      #- "MODEL_BACKGROUND_COLOR": "#000000"
-      #- "LOG_PATH": "./log" # If you wish to log to a file
-    
+      - DATABASE_TYPE=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=stlib
+      - POSTGRES_PASSWORD=stlib
+      - POSTGRES_DATABASE=stlib
+      - POSTGRES_SSLMODE=disable
+      - THINGIVERSE_TOKEN= # needed for the thingiverse download feature
+      #- PORT=8000
+      #- LIBRARY_PATH=/library
+      #- MAX_RENDER_WORKERS=5
+      #- MODEL_RENDER_COLOR=#ffffff
+      #- MODEL_BACKGROUND_COLOR=#000000
+      #- LOG_PATH=/data/log # If you wish to log to a file
     restart: unless-stopped
+
+volumes:
+  postgres_data:

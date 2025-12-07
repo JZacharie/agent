@@ -35,6 +35,17 @@ type Config struct {
 			Token string `json:"token" mapstructure:"token"`
 		} `json:"thingiverse" mapstructure:"thingiverse"`
 	} `json:"integrations" mapstructure:"integrations"`
+	Database struct {
+		Type     string `json:"type" mapstructure:"type"`
+		Postgres struct {
+			Host     string `json:"host" mapstructure:"host"`
+			Port     int    `json:"port" mapstructure:"port"`
+			User     string `json:"user" mapstructure:"user"`
+			Password string `json:"password" mapstructure:"password"`
+			Database string `json:"database" mapstructure:"database"`
+			SSLMode  string `json:"sslmode" mapstructure:"sslmode"`
+		} `json:"postgres" mapstructure:"postgres"`
+	} `json:"database" mapstructure:"database"`
 }
 
 var Cfg *Config
@@ -83,6 +94,37 @@ func init() {
 
 	viper.SetDefault("server.hostname", "localhost")
 
+	// Database defaults
+	if v := viper.GetString("DATABASE_TYPE"); v == "" {
+		viper.SetDefault("database.type", "sqlite")
+	} else {
+		viper.SetDefault("database.type", v)
+	}
+	if v := viper.GetString("POSTGRES_HOST"); v == "" {
+		viper.SetDefault("database.postgres.host", "localhost")
+	} else {
+		viper.SetDefault("database.postgres.host", v)
+	}
+	if v := viper.GetInt("POSTGRES_PORT"); v == 0 {
+		viper.SetDefault("database.postgres.port", 5432)
+	} else {
+		viper.SetDefault("database.postgres.port", v)
+	}
+	if v := viper.GetString("POSTGRES_USER"); v != "" {
+		viper.SetDefault("database.postgres.user", v)
+	}
+	if v := viper.GetString("POSTGRES_PASSWORD"); v != "" {
+		viper.SetDefault("database.postgres.password", v)
+	}
+	if v := viper.GetString("POSTGRES_DATABASE"); v != "" {
+		viper.SetDefault("database.postgres.database", v)
+	}
+	if v := viper.GetString("POSTGRES_SSLMODE"); v == "" {
+		viper.SetDefault("database.postgres.sslmode", "disable")
+	} else {
+		viper.SetDefault("database.postgres.sslmode", v)
+	}
+
 	viper.SetConfigName("config")
 	viper.AddConfigPath(dataPath)
 	viper.SetConfigType("toml")
@@ -114,6 +156,13 @@ func bindEnv() {
 	viper.BindEnv("MODEL_BACKGROUND_COLOR")
 	viper.BindEnv("LOG_PATH")
 	viper.BindEnv("THINGIVERSE_TOKEN")
+	viper.BindEnv("DATABASE_TYPE")
+	viper.BindEnv("POSTGRES_HOST")
+	viper.BindEnv("POSTGRES_PORT")
+	viper.BindEnv("POSTGRES_USER")
+	viper.BindEnv("POSTGRES_PASSWORD")
+	viper.BindEnv("POSTGRES_DATABASE")
+	viper.BindEnv("POSTGRES_SSLMODE")
 }
 
 func GetDataPath() string {
